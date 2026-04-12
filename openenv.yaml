@@ -1,0 +1,33 @@
+name: customer-support-env
+version: "1.0.0"
+description: >
+  A Customer Support RL Environment where an AI agent learns to handle
+  customer queries, classify issues, draft responses, and escalate
+  tickets appropriately. Simulates a real-world support desk workflow.
+author: AgentForge
+tasks:
+  - name: classify-ticket
+    description: Classify a customer support ticket into the correct category
+    difficulty: easy
+    max_steps: 5
+    reward_range: [0.0, 1.0]
+
+  - name: draft-response
+    description: Draft an appropriate response to a customer complaint
+    difficulty: medium
+    max_steps: 8
+    reward_range: [0.0, 1.0]
+
+  - name: resolve-escalation
+    description: Handle a complex multi-turn escalation scenario end-to-end
+    difficulty: hard
+    max_steps: 12
+    reward_range: [0.0, 1.0]
+
+action_space:
+  type: text
+  description: JSON string with keys 'action_type' and 'content'
+
+observation_space:
+  type: text
+  description: JSON string with ticket details, conversation history, and current state
