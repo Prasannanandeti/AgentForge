@@ -2,18 +2,17 @@
 Customer Support RL Environment
 ================================
 Simulates a real-world customer support desk where an AI agent must:
-  - Classify support tickets
-  - Draft appropriate responses
-  - Handle escalations
+- Classify support tickets
+- Draft appropriate responses
+- Handle escalations
 """
 
 import random
 import uuid
 from typing import Any, Dict, List, Optional
-from enum import Enum
 
 
-# ── Ticket categories ──────────────────────────────────────────────────────────
+# ── Ticket categories ─────────────────────────────────────────────────────────
 CATEGORIES = [
     "billing",
     "technical",
@@ -24,7 +23,7 @@ CATEGORIES = [
     "general",
 ]
 
-# ── Sample tickets per task ───────────────────────────────────────────────────
+# ── Sample tickets per task ──────────────────────────────────────────────────
 CLASSIFY_TICKETS = [
     {
         "id": "T001",
@@ -118,15 +117,15 @@ ESCALATION_SCENARIOS = [
 ]
 
 
-# ── Graders ───────────────────────────────────────────────────────────────────
+# ── Graders ──────────────────────────────────────────────────────────────────
 
 def grade_classify(action: Dict, ticket: Dict) -> float:
-    """Score 0.0–1.0 for ticket classification."""
+    """Score strictly between 0 and 1 for ticket classification."""
     chosen = (action.get("content") or "").strip().lower()
     correct = ticket["correct_category"].lower()
 
     if chosen == correct:
-        return 1.0
+        return 0.95
     # Partial credit for closely related categories
     related = {
         "billing": ["refund"],
@@ -136,26 +135,26 @@ def grade_classify(action: Dict, ticket: Dict) -> float:
     }
     if chosen in related.get(correct, []):
         return 0.5
-    return 0.0
+    return 0.05
 
 
 def grade_draft(action: Dict, scenario: Dict) -> float:
-    """Score 0.0–1.0 for response quality."""
+    """Score strictly between 0 and 1 for response quality."""
     response = (action.get("content") or "").lower()
     required = scenario["required_elements"]
     forbidden = scenario["forbidden_elements"]
 
     if not response:
-        return 0.0
+        return 0.05
 
     # Check forbidden words first
     for word in forbidden:
         if word in response:
-            return 0.0
+            return 0.05
 
     # Score based on required element coverage
     score = 0.0
-    per_element = 1.0 / len(required)
+    per_element = 0.85 / len(required)  # max from elements = 0.85
     keyword_map = {
         "apologize": ["sorry", "apologize", "apologi"],
         "refund": ["refund", "reimburse", "return"],
@@ -171,24 +170,25 @@ def grade_draft(action: Dict, scenario: Dict) -> float:
         if any(kw in response for kw in keywords):
             score += per_element
 
-    # Bonus for length (a real response shouldn't be too short)
+    # Bonus for length
     words = len(response.split())
     if words >= 40:
-        score = min(1.0, score + 0.1)
+        score += 0.1
 
-    return round(min(score, 1.0), 2)
+    # Clamp strictly between 0 and 1
+    return round(min(max(score, 0.05), 0.95), 2)
 
 
 def grade_escalation(action: Dict, scenario: Dict, step_index: int) -> float:
-    """Score 0.0–1.0 for each escalation step."""
+    """Score strictly between 0 and 1 for each escalation step."""
     action_type = (action.get("action_type") or "").lower()
     expected = scenario["correct_actions_sequence"]
 
     if step_index >= len(expected):
-        return 0.0
+        return 0.05
 
     if action_type == expected[step_index]:
-        return 1.0
+        return 0.95
 
     # Partial: related action
     related_map = {
@@ -200,10 +200,10 @@ def grade_escalation(action: Dict, scenario: Dict, step_index: int) -> float:
     if action_type in related_map.get(expected[step_index], []):
         return 0.4
 
-    return 0.0
+    return 0.05
 
 
-# ── Environment class ─────────────────────────────────────────────────────────
+# ── Environment class ────────────────────────────────────────────────────────
 
 class CustomerSupportEnv:
     TASKS = ["classify-ticket", "draft-response", "resolve-escalation"]
@@ -218,7 +218,7 @@ class CustomerSupportEnv:
         self._rewards: List[float] = []
         self._session_id = str(uuid.uuid4())
 
-    # ── reset ──────────────────────────────────────────────────────────────────
+    # ── reset ─────────────────────────────────────────────────────────────────
     def reset(self) -> Dict[str, Any]:
         self._step_count = 0
         self._done = False
@@ -282,12 +282,12 @@ class CustomerSupportEnv:
 
         return obs
 
-    # ── step ───────────────────────────────────────────────────────────────────
+    # ── step ──────────────────────────────────────────────────────────────────
     def step(self, action: Dict[str, Any]) -> Dict[str, Any]:
         if self._done:
             return {
                 "observation": {},
-                "reward": 0.0,
+                "reward": 0.05,
                 "done": True,
                 "info": {"error": "Episode already finished. Call reset() first."},
             }
@@ -296,18 +296,18 @@ class CustomerSupportEnv:
 
         if self.task == "classify-ticket":
             reward = grade_classify(action, self._scenario)
-            self._done = True  # single-step task
+            self._done = True
             obs = {
                 "task": self.task,
                 "session_id": self._session_id,
-                "result": "correct" if reward == 1.0 else "incorrect",
+                "result": "correct" if reward >= 0.9 else "incorrect",
                 "correct_category": self._scenario["correct_category"],
                 "your_answer": action.get("content", ""),
             }
 
         elif self.task == "draft-response":
             reward = grade_draft(action, self._scenario)
-            self._done = True  # single-step task
+            self._done = True
             obs = {
                 "task": self.task,
                 "session_id": self._session_id,
@@ -352,7 +352,7 @@ class CustomerSupportEnv:
             "info": {},
         }
 
-    # ── state ──────────────────────────────────────────────────────────────────
+    # ── state ─────────────────────────────────────────────────────────────────
     def state(self) -> Dict[str, Any]:
         return {
             "task": self.task,
