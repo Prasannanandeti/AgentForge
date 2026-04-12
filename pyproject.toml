@@ -1,28 +1,20 @@
 [project]
-name = "customer-support-rl-env"
+name = "customer-support-env"
 version = "0.1.0"
-description = "Customer Support RL Environment for OpenEnv Hackathon"
+description = "Customer Support RL Environment for OpenEnv"
 authors = [
-<<<<<<< HEAD
     { name = "Prasanna Lakshmi Nandeti"},
     { name= "Pujitha Bollina" }
 ]
 dependencies = [
-    "fastapi>=0.100.0",
-    "uvicorn>=0.20.0",
-    "pydantic>=2.0.0"
-]
-[project.scripts]
-server = "app:app"
-    { name = "Prasanna Lakshmi Nandeti"
-      name= "Pujitha Bollina }
-
-dependencies = [
     "fastapi",
     "uvicorn",
-    "pydantic"
+    "pydantic",
+    "openai",
+    "requests",
+    "openenv-core"
 ]
 
->>>>>>> 7f42473 (Added pyproject.toml for OpenEnv validation)
-[tool.openenv]
-entrypoint = "app:app"
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
