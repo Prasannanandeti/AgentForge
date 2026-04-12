@@ -1,20 +1,20 @@
 [project]
-name = "customer-support-env"
+name = "customer-support-rl-env"
 version = "0.1.0"
-description = "Customer Support RL Environment for OpenEnv"
+description = "Customer Support RL Environment for OpenEnv Hackathon"
 authors = [
-    { name = "Prasanna Lakshmi Nandeti"},
-    { name= "Pujitha Bollina" }
+    { name = "Prasanna Lakshmi Nandeti" },
+    { name = "Pujitha Bollina" }
 ]
 dependencies = [
-    "fastapi",
-    "uvicorn",
-    "pydantic",
-    "openai",
-    "requests",
-    "openenv-core"
+    "fastapi>=0.100.0",
+    "uvicorn>=0.20.0",
+    "pydantic>=2.0.0",
+    "openenv-core>=0.2.0"
 ]
 
-[build-system]
-requires = ["setuptools>=61.0"]
-build-backend = "setuptools.build_meta"
+[project.scripts]
+server = "app:main"
+
+[tool.openenv]
+entrypoint = "app:main"
