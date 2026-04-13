@@ -356,7 +356,8 @@ All final scores converge near **0.80**, demonstrating the environment successfu
 
 **AgentForge** — Built for the OpenEnv Hackathon 2026
 
-- 👤 [Prasannanandeti](https://github.com/Prasannanandeti)
+-  Prasanna Lakshmi Nandeti
+-  Pujitha Bollina
 
 ---
 
