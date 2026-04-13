@@ -41,20 +41,20 @@ The inference pipeline (`inference.py`) connects to any OpenAI-compatible LLM en
 ## Architecture
 
 ```
-┌─────────────────────────────────────────────┐
-│                  Agent (LLM)                │
-│           inference.py + OpenAI SDK         │
-└────────────────────┬────────────────────────┘
-                     │  POST /reset, /step
-┌────────────────────▼────────────────────────┐
-│           FastAPI Server (server/)          │
-│         OpenEnv-compliant REST API          │
-└────────────────────┬────────────────────────┘
-                     │
-┌────────────────────▼────────────────────────┐
-│      CustomerSupportEnv (customer_support_env.py)   │
-│   Tasks · Graders · Reward · Episode State  │
-└─────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────┐
+│                    Agent (LLM)                      │ 
+│             inference.py + OpenAI SDK               │
+└──────────────────────┬──────────────────────────────┘
+                       │  POST /reset, /step
+┌──────────────────────▼──────────────────────────────┐
+│             FastAPI Server (server/)                │
+│            OpenEnv-compliant REST API               │
+└──────────────────────┬──────────────────────────────┘
+                       │
+┌──────────────────────▼──────────────────────────────┐
+│    CustomerSupportEnv (customer_support_env.py)     │
+│     Tasks · Graders · Reward · Episode State        │
+└─────────────────────────────────────────────────────┘
 ```
 
 - **`server/`** — FastAPI application exposing the OpenEnv REST API
